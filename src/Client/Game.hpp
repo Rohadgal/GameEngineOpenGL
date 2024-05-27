@@ -2,7 +2,8 @@
 #include <memory>
 #include <vector>
 #include "Window.h"
-
+#include "Renderizador/VertexArray.hpp"
+#include "Renderizador/Shader.hpp"
 class Game
 {
 public:
@@ -12,7 +13,7 @@ public:
 
 public:
 	Game();
-	virtual ~Game()=default;
+	virtual ~Game();
 
 	Game(const Game& other) = delete;
 	Game& operator==(const Game& other) = delete;
@@ -23,11 +24,15 @@ private:
 	std::unique_ptr<GL::Window> m_Window{};
 	std::unique_ptr<GL::Renderizador>m_Renderizador{};
 
-	uint32_t m_ObjetoProgramShader;
+
+	
+	std::unique_ptr<GL::VertexArray>m_VertexArray;
+	std::shared_ptr<GL::Shader>m_Shader;
 
 private:
 	void ManejarEntradaDeUsuario();
 	void Actualizar();
 	void Renderizar();
+
 
 };

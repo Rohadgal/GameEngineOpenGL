@@ -92,7 +92,12 @@
     <ClCompile Include="include\glm\detail\glm.cpp" />
     <ClCompile Include="src\Client\Game.cpp" />
     <ClCompile Include="src\Client\main.cpp" />
-    <ClCompile Include="src\Engine\Renderizador.cpp" />
+    <ClCompile Include="src\Engine\Renderizador\IndexBuffer.cpp" />
+    <ClCompile Include="src\Engine\Renderizador\Renderizador.cpp" />
+    <ClCompile Include="src\Engine\Renderizador\Shader.cpp" />
+    <ClCompile Include="src\Engine\Renderizador\VertexArray.cpp" />
+    <ClCompile Include="src\Engine\Renderizador\VertexBuffer.cpp" />
+    <ClCompile Include="src\Engine\Utils\Archivo.cpp" />
     <ClCompile Include="src\Engine\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -459,7 +464,12 @@
     <ClInclude Include="include\SDL\SDL_video.h" />
     <ClInclude Include="include\SDL\SDL_vulkan.h" />
     <ClInclude Include="src\Client\Game.hpp" />
-    <ClInclude Include="src\Engine\Renderizador.hpp" />
+    <ClInclude Include="src\Engine\Renderizador\IndexBuffer.hpp" />
+    <ClInclude Include="src\Engine\Renderizador\Shader.hpp" />
+    <ClInclude Include="src\Engine\Renderizador\VertexArray.hpp" />
+    <ClInclude Include="src\Engine\Renderizador\VertexBuffer.hpp" />
+    <ClInclude Include="src\Engine\Renderizador\Renderizador.hpp" />
+    <ClInclude Include="src\Engine\Utils\Archivo.hpp" />
     <ClInclude Include="src\Engine\Window.h" />
   </ItemGroup>
   <ItemGroup>
@@ -468,6 +478,8 @@
     <Library Include="libs\SDL2test.lib" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\shaders\Basic.frag" />
+    <None Include="Assets\shaders\Basic.vert" />
     <None Include="bin\Debug\OpneGlGame.exe" />
     <None Include="bin\Debug\OpneGlGame.pdb" />
     <None Include="include\glm\detail\func_common.inl" />

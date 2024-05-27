@@ -5,71 +5,62 @@
 
 #include <glad/glad.h>
 
+#include"Utils/Archivo.hpp"
+
+	/*"vec2 vertices[3] = {\n"
+		"   {0.0f, 0.5f},\n"
+		"   {-0.5f, -0.5f},\n"
+		"   {0.5f, -0.5f}\n"
+		"};*/
 Game::Game()
 {
 	m_Window = std::make_unique<GL::Window>(Nombre, Ancho, Alto);
 	m_Renderizador = m_Window->CrearRenderizador();
+	m_Shader = GL::Shader::Desdearchivo("./Assets/shaders/Basic.vert", "./Assets/shaders/Basic.frag");
 
-	const char* vertexShader =
-		"#version 450 core\n"
-		"vec2 vertices[3] = {\n"
-		"   {0.0f, 0.5f},\n"
-		"   {-0.5f, -0.5f},\n"
-		"   {0.5f, -0.5f}\n"
-		"};\n"
-		"void main(){\n"
-		"   gl_Position = vec4(vertices[gl_VertexID], 1.0f, 1.0f);\n"
-		"}\n\0";
+	//vertex Buffer o memoria de vertices
+	//Datos
+	float vertices[] =
+	{
+	   -0.5f,  0.5f, 1.0f, 0.0f, 0.0f,
+	   -0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
+		0.5f, -0.5f, 0.0f, 0.0f, 1.0f,
 
-	const char* fragmentShader =
-		"#version 450 core\n"
-		"out vec4 fColor;\n"
-		"void main(){\n"
-		"   fColor = vec4(1.0f, 1.0f, 1.0f, 1.0f);\n"
-		"}\n\0";
+	   /*-0.5f,  0.5f, 1.0f, 0.0f, 0.0f,
+		0.5f, -0.5f, 0.0f, 0.0f, 1.0f,*/
+	    0.5f,  0.5f, 1.0f, 1.0f, 1.0f,
+	};//Esto es mucho codigo como podemos reutilizarlo con un index buffer asi que usaremos indices explcarles ahora los indices luego de hacer el cuadro con vertices
 
-	//Crear objetos shaderde OpneGl
-	GLuint objetoVertexShader = glCreateShader(GL_VERTEX_SHADER);
-	GLuint objetoFragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	uint8_t indices[] = {
+		0,1,2,
+		0,2,3
+	};
 
-	//Subir string al objeto
-	glShaderSource(objetoVertexShader, 1, &vertexShader, nullptr);
-	glShaderSource(objetoFragmentShader, 1, &fragmentShader, nullptr);
-	//Se puede usar docs.gl para buscar informacion de gl
-	//Compilar programa
-	glCompileShader(objetoVertexShader);
-	glCompileShader(objetoFragmentShader);
+	GL::VertexArray::Atributo atributos[] =
+	{
+		{0, GL::VertexArray::TipoAtributo::Float2},
+		{1, GL::VertexArray::TipoAtributo::Float3},
+	};
 
-	//Crear un objeto programa de opengl
-	m_ObjetoProgramShader = glCreateProgram();
+	std::shared_ptr<GL::VertexBuffer> vertexBuffer = std::make_shared<GL::VertexBuffer>(sizeof(vertices) / sizeof(vertices[0]), vertices);
+	std::shared_ptr<GL::IndexBuffer> indexBuffer = std::make_shared<GL::IndexBuffer>(sizeof(indices) / sizeof(indices[0]), indices);
 
-	//Enviar archivos compilados al programa
-	glAttachShader(m_ObjetoProgramShader, objetoVertexShader);
-	glAttachShader(m_ObjetoProgramShader, objetoFragmentShader);
+	m_VertexArray = std::make_unique<GL::VertexArray>(atributos, sizeof(atributos) / sizeof(atributos[0]));
+	m_VertexArray->SetDataBuffer(vertexBuffer, indexBuffer);
 
-	//Linker (union de archivos compilados
-	glLinkProgram(m_ObjetoProgramShader);
+}
 
-	/*
-	Como funciona el comilador
-	1.cpp
-	2.cpp, etc, programacion
-	
-	1.obj
-	2.obj, crea el intermediario .obj que ya no es legible por el humano
-
-	el compilador toma esos dos obj
-	(1.obj, 2.obj) unir => linking, los une 
-
-	y luego de unir genera el ejecutable
-	*/
-
+Game::~Game()
+{
 }
 
 void Game::Run()
 {
+	
 	m_Renderizador->Viewport(0, 0, Ancho, Alto);
 
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);//esto es para dibujar las lineas nadamas
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);//Esto es para dibujar los puntos de los vertices
 	while (m_Window->Corriendo())
 	{
 		m_Window->RecibirEventos();
@@ -78,7 +69,7 @@ void Game::Run()
 
 		Renderizar();
 	}
-	glDeleteProgram(m_ObjetoProgramShader);
+
 }
 
 void Game::Actualizar()
@@ -88,17 +79,37 @@ void Game::Actualizar()
 
 void Game::Renderizar()
 {
-	static float an = 0.0f;
+	m_Renderizador->LimpiarPantalla(glm::vec4(0.1f, 0.1f, 0.1f, 1.0f));
+	/*static int32_t p;
+
+	m_Renderizador->Viewport(p, p, Ancho, Alto);//hacer la prueba de los modulos cambiando ancho y alto a 100*/
+
+	/*static float an = 0.0f;
 
 	float r = glm::sin(glm::radians(an)) * 0.5f +0.5f;
 	float g = glm::sin(2 * glm::radians(an)) * 0.5f + 0.5f;
 	float b = glm::cos(glm::radians(an)) * 0.5f + 0.5f;
-	m_Renderizador->LimpiarPantalla(glm::vec4( r,g,b, 1.0f ));
+	*/
 	//////////////////////////////////////////////////////////
-	glUseProgram(m_ObjetoProgramShader);
-	glDrawArrays(GL_TRIANGLES, 0, 3);
+	m_Shader->Bind();
+	m_VertexArray->Bind();
+	glDrawElements(GL_TRIANGLES, m_VertexArray->GetDrawCount(), GL_UNSIGNED_BYTE, nullptr);
 	/////////////////////////////////////////////////////////
 	m_Window->Cambiar();
 
-	an += 180.0f / 360.0f;
+	//an += 180.0f / 360.0f;
+	
+	//p = ++p % Alto;
+	/* %6
+	1	1
+	2	2
+	3	3
+	4	4
+	5	5
+	6	1
+
+	1
+	2
+	3
+	*/
 }
